@@ -1,0 +1,50 @@
+<%- include('partials/head') %>
+
+<div class="page-head">
+  <div class="wrap">
+    <nav class="crumb"><a href="/<%= lang %>"><%= t('breadcrumb.home') %></a> / <span><%= t('nav.about') %></span></nav>
+    <h1 class="serif"><%= t('about.title') %></h1>
+  </div>
+</div>
+
+<section class="section">
+  <div class="wrap about-preview">
+    <div>
+      <span class="eyebrow eyebrow-dark"><%= lang === 'zh' ? '公司简介' : 'Company Profile' %></span>
+      <h2 class="serif"><%= lang === 'zh' ? company.name_zh : company.name_en %></h2>
+      <p class="lead"><%= lang === 'zh' ? company.intro_zh : company.intro_en %></p>
+      <div class="contact-list">
+        <p><b><%= t('contact.address') %>：</b><%= lang === 'zh' ? company.address_zh : company.address_en %></p>
+        <p><b><%= t('contact.phone') %>：</b><%= company.phone %></p>
+        <p><b>WhatsApp：</b><%= company.whatsapp %></p>
+        <p><b><%= t('contact.email') %>：</b><%= company.email %></p>
+        <p><b><%= t('contact.hours') %>：</b><%= lang === 'zh' ? company.worktime_zh : company.worktime_en %></p>
+        <p><b><%= t('about.market') %>：</b><%= company.main_market %></p>
+      </div>
+      <a class="btn btn-dark" href="/<%= lang %>/contact"><%= t('nav.inquiry') %> →</a>
+    </div>
+    <div class="facts">
+      <div><b><%= company.year_founded %></b><span><%= t('about.founded') %></span></div>
+      <div><b><%= company.employees %></b><span><%= t('about.employees') %></span></div>
+      <div><b><%= company.factory_area %></b><span><%= t('about.area') %></span></div>
+      <div><b><%= company.annual_output %></b><span><%= t('about.output') %></span></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-tint">
+  <div class="wrap">
+    <div class="sec-head"><h2><%= t('cert.title') %></h2></div>
+    <div class="cert-grid">
+      <% certs.forEach(function (c) { %>
+        <div class="cert-card">
+          <span class="cert-seal">✓</span>
+          <strong><%= lang === 'zh' ? c.name_zh : c.name_en %></strong>
+          <em><%= lang === 'zh' ? c.issuer_zh : c.issuer_en %></em>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/foot') %>
