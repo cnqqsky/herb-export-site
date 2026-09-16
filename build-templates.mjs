@@ -46,6 +46,11 @@ const GLOBALS = new Set([
   'Error', 'parseInt', 'parseFloat', 'isNaN', 'isFinite', 'Symbol', 'Map', 'Set', 'Promise',
   'Proxy', 'Reflect', 'BigInt', 'WeakMap', 'WeakSet', 'Float64Array', 'Float32Array',
   'Int32Array', 'Uint8Array', 'Int8Array', 'console', 'document', 'window',
+  // Workers / Web 标准全局（漏掉会被解构成 undefined，导致 "X is not a constructor"）
+  'URL', 'URLSearchParams', 'TextEncoder', 'TextDecoder', 'Blob', 'FormData', 'Headers',
+  'Request', 'Response', 'fetch', 'AbortController', 'crypto', 'caches', 'scheduler',
+  'Intl', 'atob', 'btoa', 'structuredClone', 'performance', 'navigator', 'globalThis',
+  'setTimeout', 'clearTimeout', 'setInterval', 'clearInterval', 'queueMicrotask',
   // ejs 内部保留名
   'locals', '__locals', 'escapeFn', '__output', '__append', 'include', 'rethrow', 'opts', 'data',
 ]);
