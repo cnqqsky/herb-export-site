@@ -1,0 +1,26 @@
+<%- include('partials/head') %>
+
+<div class="page-head">
+  <div class="wrap">
+    <nav class="crumb"><a href="/<%= lang %>"><%= t('breadcrumb.home') %></a> / <span><%= t('cert.title') %></span></nav>
+    <h1 class="serif"><%= t('cert.title') %></h1>
+    <p class="page-sub"><%= t('cert.subtitle') %></p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="wrap">
+    <div class="cert-grid big">
+      <% certs.forEach(function (c) { %>
+        <div class="cert-card">
+          <% if (c.image) { %><img src="<%= c.image %>" alt="<%= c.name_en %>"><% } else { %><span class="cert-seal big-seal">✓</span><% } %>
+          <strong><%= lang === 'zh' ? c.name_zh : c.name_en %></strong>
+          <em><%= lang === 'zh' ? c.issuer_zh : c.issuer_en %></em>
+        </div>
+      <% }); %>
+    </div>
+    <% if (!certs.length) { %><div class="empty"><p>—</p></div><% } %>
+  </div>
+</section>
+
+<%- include('partials/foot') %>
