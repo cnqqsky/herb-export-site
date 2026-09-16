@@ -163,6 +163,11 @@ herb-export-site/
 5. **产品 slug 由英文名生成**：`name_en.toLowerCase().replace(/[^a-z0-9]+/g,'-')`。
    例：`Ginseng Root (White Ginseng)` → `ginseng-root-white-ginseng`，**不是** `ginseng`。调试 404 先查 slug。
 6. **部署命令是 `wrangler deploy`**（Worker + Assets），不是 Pages。
+7. **`views/*.ejs` 里用到的任何「全局对象」必须登记在 `build-templates.mjs` 的 `GLOBALS` 白名单里。**
+   编译器会把模板里扫到的标识符全部解构成局部变量（`X = __locals.X`），未登记的全局会被 shadow 成 `undefined`。
+   2026-09-17 事故：`products.ejs` 用了 `new URLSearchParams()` 但未登记 → 线上 `/zh/products` 500
+   （`TypeError: URLSearchParams is not a constructor`）。已把 URL/URLSearchParams/crypto/Intl/blob 等一并列白名单。
+   → **新增模板若要用别的全局（如 `Intl.NumberFormat`），先往 `GLOBALS` 里加，再 `npm run build`。**
 
 ### 🟡 环境约束（本机）
 
@@ -183,7 +188,9 @@ herb-export-site/
 node build-templates.mjs
 
 # 本地预览（本地 D1）
-wrangler dev --config wrangler.toml          # 端口 8791
+wrangler dev --config wrangler.toml          # 端口 8791 → http://localhost:8791
+# 本地 D1 首次需灌数据（已灌过则会报 UNIQUE 冲突，属正常，跳过即可）
+wrangler d1 execute herb_export_site --local --file=init.sql
 
 # 生产部署
 wrangler deploy --config wrangler.toml
