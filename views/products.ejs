@@ -1,0 +1,60 @@
+<%- include('partials/head') %>
+
+<div class="page-head">
+  <div class="wrap">
+    <nav class="crumb"><a href="/<%= lang %>"><%= t('breadcrumb.home') %></a> / <span><%= t('nav.products') %></span></nav>
+    <h1 class="serif"><%= t('nav.products') %></h1>
+    <p class="page-sub"><%= t('prod.count', total) %></p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="wrap products-layout">
+    <aside class="filters">
+      <form class="search-box" method="get" action="/<%= lang %>/products">
+        <% if (cat) { %><input type="hidden" name="cat" value="<%= cat %>"><% } %>
+        <input type="text" name="q" value="<%= q %>" placeholder="<%= t('prod.search') %>">
+        <button type="submit">⌕</button>
+      </form>
+      <h4><%= lang === 'zh' ? '产品分类' : 'Categories' %></h4>
+      <a class="filter-item <%= !cat ? 'on' : '' %>" href="/<%= lang %>/products<%= q ? '?q=' + encodeURIComponent(q) : '' %>">
+        <%= t('prod.all') %> <em><%= total %></em>
+      </a>
+      <% categories.forEach(function (c) {
+           const n = products.filter(p => p.cat_slug === c.slug).length; %>
+        <a class="filter-item <%= cat === c.slug ? 'on' : '' %>"
+           href="/<%= lang %>/products?cat=<%= c.slug %><%= q ? '&q=' + encodeURIComponent(q) : '' %>">
+          <%= lang === 'zh' ? c.name_zh : c.name_en %> <em><%= n %></em>
+        </a>
+      <% }); %>
+      <div class="filter-tip">
+        <strong><%= lang === 'zh' ? '需要定制规格？' : 'Need custom specs?' %></strong>
+        <p><%= lang === 'zh' ? '支持切片、粉碎、提取物、小包装 OEM。' : 'Slicing, powdering, extracts & OEM packing available.' %></p>
+        <a href="/<%= lang %>/contact"><%= t('nav.inquiry') %> →</a>
+      </div>
+    </aside>
+
+    <div>
+      <% if (!products.length) { %>
+        <div class="empty"><p><%= t('prod.empty') %></p></div>
+      <% } else { %>
+        <div class="prod-grid">
+          <% products.forEach(function (p) { %><%- include('partials/product-card', { p: p }) %><% }); %>
+        </div>
+        <% if (pageCount > 1) { %>
+          <div class="pager">
+            <% for (let i = 1; i <= pageCount; i++) {
+                 const qs = new URLSearchParams();
+                 if (cat) qs.set('cat', cat);
+                 if (q) qs.set('q', q);
+                 qs.set('page', i); %>
+              <a class="<%= i === cur ? 'on' : '' %>" href="/<%= lang %>/products?<%= qs.toString() %>"><%= i %></a>
+            <% } %>
+          </div>
+        <% } %>
+      <% } %>
+    </div>
+  </div>
+</section>
+
+<%- include('partials/foot') %>
