@@ -1,8 +1,8 @@
 # 中药材外贸中英双语站 · 前后台一体（Cloudflare 原生版）
 
 > Chinese Herbal Export Website — 面向海外采购商的中药材原料 / 饮片外贸官网，含完整后台管理系统。
-> **技术栈（Cloudflare 原生）**：Cloudflare Pages + Pages Functions + D1（边缘 SQLite）+ EJS 服务端渲染。
-> 原 Express + better-sqlite3 版本已迁移走，无需任何 Node 服务器，`git push` 即上线。
+> **技术栈（Cloudflare 原生）**：Cloudflare **Worker + [assets] 静态资源** + D1（边缘 SQLite）+ EJS 服务端渲染（构建期预编译）。
+> 原 Express + better-sqlite3 版本、以及早期 Pages Functions 版本均已迁移走，无需任何 Node 服务器，`git push` 即上线。
 
 ---
 
@@ -10,9 +10,10 @@
 
 | 层 | 实现 |
 |---|---|
-| 静态资源（CSS/JS/后台页） | Cloudflare Pages 直接托管（`public/`），构建输出目录 `public` |
-| 前台页面（SSR） | `functions/[[path]].js` 用 EJS 渲染，模板预编译进 `functions/templates.js` |
-| 后台 API | `functions/api/admin/[[path]].js` + `functions/api/inquiry.js`（HMAC cookie 鉴权） |
+| 请求入口 | `worker.js`（`run_worker_first = true`）：API → 静态资源 → SSR 三级分发 |
+| 静态资源（CSS/JS/后台页） | `[assets]` 绑定托管 `public/` |
+| 前台页面（SSR） | `functions/site.js` 用预编译后的 EJS 渲染 |
+| 后台 API | `functions/api/admin/index.js` + `functions/api/inquiry.js`（HMAC cookie 鉴权） |
 | 数据库 | Cloudflare D1（异步 SQLite），绑定名 `DB` |
 | 登录鉴权 | HMAC-SHA256 Token，HttpOnly cookie（替代原 Express session） |
 | 图片 | 改为「图片 URL」字段（R2 对象存储接入前先填 URL，避免 CF 无磁盘的限制） |
@@ -25,11 +26,11 @@
 # 1. 安装依赖（只需要 ejs）
 npm install
 
-# 2. 预编译 EJS 模板（部署前必跑；生成 functions/templates.js）
+# 2. 预编译 EJS 模板（部署前必跑；生成 functions/templates.cjs）
 npm run build
 
 # 3. 本地预览（需先 wrangler login）
-wrangler pages dev .
+npm run dev          # = node build-templates.mjs && wrangler dev（端口 8791）
 ```
 
 > 本地预览依赖一个本地 D1：先在 `wrangler.toml` 填好 database_id（见下方「部署」），
@@ -80,39 +81,41 @@ wrangler pages dev .
 
 ---
 
-## 五、部署到 Cloudflare Pages（push 即上线）
+## 五、部署到 Cloudflare Workers（push 即上线）
 
-### 方式 A：连接 Git 仓库（推荐，自动部署）
+仓库：`https://github.com/cnqqsky/herb-export-site`（生产分支 `main`）
 
-1. **登录 wrangler**（一次性，用于建 D1 库）：
-   ```bash
-   wrangler login
-   ```
-2. **创建 D1 数据库**：
-   ```bash
-   wrangler d1 create herb_export_site
-   ```
-   把返回的 `database_id` 填进 `wrangler.toml` 的 `database_id`。
-3. **推送到 GitHub**：
-   ```bash
-   git add -A && git commit -m "feat: CF-native herb export site" && git push
-   ```
-4. **Cloudflare 控制台** → Pages → 创建项目 → 连接该 GitHub 仓库，构建设置：
-   - 构建命令：`npm run build`
-   - 构建输出目录：`public`
-   - 框架预设：无（None）
-5. **绑定 D1**：Pages 项目 → 设置 → 函数 → D1 数据库绑定，变量名填 `DB`，选择 `herb_export_site`。
-   （也可直接用 `wrangler.toml` 里的 `[[d1_databases]]` 配置。）
-6. **首次访问即自动建表 + 灌入演示数据**（代码里 `ensureReady` 会处理），无需手动 migrate。
+### 方式 A：Workers Builds 连 Git（推荐，零密钥）
 
-之后每次 `git push` 都会触发重新构建并上线。
+1. Cloudflare 控制台 → **Workers & Pages** → 选中 `herb-export-site`
+2. **Settings → Builds → Connect** → 授权 GitHub → 选 `cnqqsky/herb-export-site`
+3. 构建设置：
+   - Git branch：`main`
+   - Build command：`npm install && npm run build`
+   - Deploy command：`npx wrangler deploy`
+   - Root directory：留空
+4. 保存后 push 一次即触发构建部署（Cloudflare 会自动生成并托管所需的 API token，无需手动配置）
 
-### 方式 B：CLI 直接部署（不连 Git）
+> ⚠️ 控制台里的 Worker 名必须与 `wrangler.toml` 的 `name = "herb-export-site"` 一致，否则构建失败。
+
+### 方式 B：GitHub Actions（需一个 CF API Token）
+
+仓库里已内置 `.github/workflows/deploy.yml`，推送到 `main` 即触发：
 
 ```bash
-npm run build
-wrangler pages deploy          # 按提示选择 / 创建项目
+gh secret set CLOUDFLARE_API_TOKEN -R cnqqsky/herb-export-site   # 粘贴 CF API Token
+gh secret set CLOUDFLARE_ACCOUNT_ID -R cnqqsky/herb-export-site  # 已配置
 ```
+
+未设置 token 时该 workflow 会**自动跳过**（不会红叉）。
+
+### 方式 C：本地 CLI 直推（不走 Git）
+
+```bash
+npm run deploy       # = node build-templates.mjs && wrangler deploy
+```
+
+> 注意：本项目是 **Worker + Assets**，部署命令是 `wrangler deploy`，**不是** `wrangler pages deploy`。
 
 ---
 
@@ -120,25 +123,27 @@ wrangler pages deploy          # 按提示选择 / 创建项目
 
 ```
 herb-export-site/
-├─ functions/                 # Pages Functions（边缘运行）
-│  ├─ [[path]].js             # 前台 SSR 路由（catch-all）
-│  ├─ templates.js            # 由 build-templates.mjs 生成的 EJS 模板（自动）
-│  ├─ db.js                   # D1 异步封装（get/all/run/exec）
-│  ├─ i18n.js                 # 内置中英文案字典
-│  ├─ helpers.js              # 渲染辅助（escapeHtml / fmtPrice / thumb）
-│  ├─ seed-data.js            # D1 建表 + 演示数据（自动灌库）
-│  ├─ api/
-│  │  ├─ inquiry.js          # 公开询盘提交
-│  │  └─ admin/
-│  │     └─ [[path]].js       # 后台全部 API（catch-all）
-├─ views/                     # EJS 模板源（构建时编译进 functions/templates.js）
-├─ public/                    # 静态资源（构建输出目录）
-│  ├─ css/site.css  admin.css
-│  ├─ js/site.js  admin.js
-│  └─ admin.html
-├─ build-templates.mjs        # 把 views/*.ejs 编译为 functions/templates.js
-├─ wrangler.toml             # Pages + D1 绑定配置
-└─ package.json              # type:module，依赖仅 ejs
+├─ worker.js                  # Worker 入口：/api → 静态资源 → SSR 三级路由分发
+├─ wrangler.toml              # Worker + [assets] + D1 绑定配置
+├─ build-templates.mjs        # 把 views/*.ejs 预编译为 functions/templates.cjs
+├─ init.sql                   # 生产 D1 播种 SQL（schema + 全量数据）
+├─ .github/workflows/deploy.yml  # GitHub Actions 自动部署（方式 B）
+├─ scripts/github-api-push.mjs   # 本机 github.com:443 被封锁时的 API 推送兜底脚本
+├─ functions/                 # 部署代码（运行时被 worker.js 引入）
+│  ├─ site.js                 # 前台 SSR 路由 + 渲染
+│  ├─ templates.cjs           # 由 build-templates.mjs 生成的预编译模板（勿手改）
+│  ├─ seed-data.js            # 建表 SCHEMA + 演示数据
+│  ├─ db.js                   # D1 封装（所有方法首参为 env）
+│  ├─ i18n.js                 # 双语字典 + makeT()
+│  ├─ helpers.js              # fmtPrice / thumb
+│  └─ api/
+│     ├─ inquiry.js           # 公开询盘提交
+│     └─ admin/index.js       # 后台全部 API
+├─ views/                     # EJS 模板源（改后必须 npm run build）
+└─ public/                    # 静态资源（走 [assets] 绑定）
+   ├─ css/site.css  admin.css
+   ├─ js/site.js  admin.js
+   └─ admin.html
 ```
 
 ---

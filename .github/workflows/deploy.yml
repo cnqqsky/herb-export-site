@@ -1,5 +1,6 @@
 name: Deploy to Cloudflare Workers
 
+# 触发条件：推送到 main 即自动部署；也可在 Actions 页面手动触发
 on:
   push:
     branches:
@@ -16,6 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+    # 把 secret 转存进 env，step 级 if 才能判断它是否为空
+    # （GitHub Actions 的 job 级 if 不能直接使用 secrets 上下文）
+    env:
+      CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,14 +33,24 @@ jobs:
       - name: Install dependencies
         run: npm install --no-audit --no-fund
 
-      # 关键：EJS 必须在构建期预编译（Workers 禁 eval/new Function）
+      # 关键：EJS 必须在构建期预编译（Workers 运行时禁用 eval / new Function）
       - name: Precompile EJS templates
         run: npm run build
 
       - name: Deploy to Cloudflare Workers
+        # 未配置 CLOUDFLARE_API_TOKEN 时跳过，避免每次 push 都红叉
+        if: env.CF_TOKEN != ''
         uses: cloudflare/wrangler-action@v4
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           wranglerVersion: "4"
           command: deploy
+
+      - name: Hint (token not configured)
+        if: env.CF_TOKEN == ''
+        run: |
+          echo "::warning::未配置 CLOUDFLARE_API_TOKEN，已跳过部署。"
+          echo "两种补法："
+          echo "  1) GitHub Actions：Settings → Secrets → 新增 CLOUDFLARE_API_TOKEN"
+          echo "  2) 更推荐：直接用 Cloudflare Workers Builds 连接本仓库，无需任何 token"

@@ -27,7 +27,10 @@ herb-export-site/
 ├── wrangler.toml                # CF 配置：D1 绑定 + Assets 绑定
 ├── build-templates.mjs          # 构建：views/*.ejs → functions/templates.cjs
 ├── init.sql                     # 生产 D1 播种 SQL（已执行，可复现）
-├── package.json                 # ⚠ scripts 已过期（仍写 wrangler pages），勿用
+├── package.json                 # scripts：build / dev(wrangler dev) / deploy(wrangler deploy)
+│
+├── .github/workflows/deploy.yml # GitHub Actions 自动部署（需 CLOUDFLARE_API_TOKEN，缺失则自动跳过）
+├── scripts/github-api-push.mjs  # 兜底推送脚本（本机 github.com:443 被代理封锁时走 Git Data API）
 │
 ├── views/                       # 【构建源】EJS 模板，改这里必须重跑 build-templates.mjs
 │   ├── home/products/product/about/certificates/contact/404.ejs
@@ -121,7 +124,7 @@ herb-export-site/
 
 ## 7. 已知问题
 
-1. **`package.json` scripts 已过期**：仍写 `wrangler pages dev/deploy`。实际部署用 `wrangler deploy`。勿直接 `npm run deploy`。
+1. ~~**`package.json` scripts 已过期**~~ → 已于 2026-09-16 修正为 `wrangler dev` / `wrangler deploy`。
 2. **图片上传未实现**：R2 未接入，只能填图片 URL（见第 4 节）。
 3. **`views/` 目录容易被误删**：它不是旧版残留，是 `build-templates.mjs` 的**构建源**。
 4. **管理密码仍为默认** `admin123`，公开站点应尽快改。
@@ -134,11 +137,15 @@ herb-export-site/
 
 1. **改默认密码**：登录后 `PUT /api/admin/password`，或重跑 `init.sql` 前改掉 `admin123`。
 2. **接入 R2 做图片上传**：替换 `admin/index.js` 里 `upload` 的 stub（第 94 行附近），补 R2 绑定 + `wrangler.toml` `[[r2_buckets]]`。
-3. **修正 `package.json` scripts**：改成 `wrangler dev` / `wrangler deploy`，并加 `predeploy: node build-templates.mjs`。
+3. ~~**修正 `package.json` scripts**~~ → 已完成，并补了 `wrangler` devDependency 锁版本。
 4. **补真实产品图**：目前靠标本卡占位，外贸站需要真实图。
 5. **清理遗留**：删 `data/`、`server/`、`test_region.js` 及几个 txt 垃圾文件。
-6. **（可选）绑定自定义域名** + CF 控制台连 Git 获得 push-to-deploy（当前是手动 `wrangler deploy`）。
-7. **（可选）清理 GitHub 仓库里的旧 `views/` 包袱**：注意现在 `views/` 是构建源，**不能删**，应保留并确认是最新的。
+6. **（进行中）自动部署**：代码已推送到 `cnqqsky/herb-export-site@main`。两条路：
+   - **Workers Builds（推荐，零密钥）**：控制台 Workers & Pages → herb-export-site → Settings → Builds → Connect → 选该仓库；
+     Build command `npm install && npm run build`，Deploy command `npx wrangler deploy`。
+   - **GitHub Actions**：workflow 已就位，补 `CLOUDFLARE_API_TOKEN` secret 即可（`CLOUDFLARE_ACCOUNT_ID` 已设置）。
+7. **（可选）绑定自定义域名**。
+8. ~~清理 GitHub 仓库里的旧 `views/` 包袱~~ → 已在同步时清掉旧的 Pages 产物（`functions/[[path]].js`、`templates.js`），`views/` 作为构建源保留。
 
 ---
 
@@ -162,7 +169,10 @@ herb-export-site/
 - **代理 `HTTPS_PROXY` 只放行白名单**：`api.cloudflare.com`、`api.github.com` 通，但 **`*.workers.dev` 返回 502**。
   → 沙箱内**无法 curl 线上 URL 自测**，需用户在自己浏览器验证。
   → `wrangler d1 execute --remote` **可用**（走 api.cloudflare.com）。
-- **`git push` 走不通**（`github.com:443` 被挡）。推 GitHub 用 `gh api` Contents API（JSON 走 `--input -` 传 stdin，避 Windows 32KB 参数上限）。
+- **`git push` 走不通**（`github.com:443` 被挡，CONNECT 502；SSH 到 `ssh.github.com:443` 通但密钥未注册）。
+  → 用兜底脚本走 api.github.com：`node scripts/github-api-push.mjs --message "..."`
+  （基于 Git Data API：blob → tree → commit → 移动 ref，等价整树同步；已完成首次推送 `24fe29b`）
+  → 本地已 `git init` 并保留远端 `origin`，日常 `git add/commit` 后跑该脚本即可。
 - **Bash 工具残缺**：`cd`/`dirname`/`cat`/`head` 不可用，统一用 `node -e` + 原生 Windows 路径（`D:/...`）。
 - 用**系统 Node** `D:/软件/nodejs/node.exe`（托管 Node 路径会错乱）；wrangler 在 `C:/Users/haila/AppData/Roaming/npm/node_modules/wrangler/bin/wrangler.js`。
 
@@ -188,3 +198,29 @@ products 47 / categories 7 / admins 1 / certificates 6 / banners 3 / company 1
 → `maybeSeed()` 检测到 `products>0` 会直接跳过，首访不会重新建表。
 
 **`ADMIN_SECRET`** 已通过 `wrangler secret put` 设置（随机 32B），`wrangler secret list` 可确认。
+
+---
+
+## 10. GitHub / CI 速查（2026-09-16 建立）
+
+| 项 | 值 |
+|---|---|
+| 仓库 | `https://github.com/cnqqsky/herb-export-site`（`main`） |
+| 已配 secret | `CLOUDFLARE_ACCOUNT_ID` = `b655cc05753ae6671a919fabc05ab80f` |
+| 待配 secret | `CLOUDFLARE_API_TOKEN`（仅走 GitHub Actions 方案时需要） |
+| CF 账号 | `hailangi@163.com` / account id `b655cc05753ae6671a919fabc05ab80f` |
+| 线上 | `https://herb-export-site.hailangi.workers.dev` |
+
+```bash
+# 提交 + 推送（绕过 github.com:443 封锁）
+git add -A && git commit -m "..."
+node scripts/github-api-push.mjs --message "..."
+
+# 手动触发一次 Actions 部署
+gh workflow run deploy.yml -R cnqqsky/herb-export-site
+
+# 查看最近一次构建结果
+gh run list -R cnqqsky/herb-export-site --limit 5
+```
+
+> ⚠️ **注意**：脚本生成的是「整树同步」提交（不带 base_tree），远端仓库中不在本地索引里的文件会被清除，等价于 force push。
