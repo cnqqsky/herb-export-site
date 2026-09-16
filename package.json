@@ -3,11 +3,11 @@
   "version": "2.0.0",
   "private": true,
   "type": "module",
-  "description": "中药材外贸中英双语官网 + 后台（Cloudflare Pages 原生：D1 + Pages Functions + EJS SSR）",
+  "description": "中药材外贸中英双语官网 + 后台（Cloudflare 原生：Worker + Assets + D1 + EJS SSR，push 即上线）",
   "scripts": {
     "build": "node build-templates.mjs",
-    "dev": "node build-templates.mjs && wrangler pages dev .",
-    "deploy": "node build-templates.mjs && wrangler pages deploy"
+    "dev": "node build-templates.mjs && wrangler dev",
+    "deploy": "node build-templates.mjs && wrangler deploy"
   },
   "dependencies": {
     "ejs": "^3.1.10"
