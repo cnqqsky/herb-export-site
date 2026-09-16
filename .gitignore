@@ -1,0 +1,14 @@
+# 依赖与本地产物
+node_modules/
+.wrangler/
+data/
+*.db
+*.sqlite
+
+# 旧版 Express 全栈代码（已迁移到 Cloudflare 原生，不再部署）
+server/
+
+# 系统
+.DS_Store
+Thumbs.db
+public/uploads/
