@@ -231,3 +231,15 @@ gh run list -R cnqqsky/herb-export-site --limit 5
 ```
 
 > ⚠️ **注意**：脚本生成的是「整树同步」提交（不带 base_tree），远端仓库中不在本地索引里的文件会被清除，等价于 force push。
+
+## 11. 备份速查（2026-09-17 建立）
+
+```bash
+# 一键备份：源码 + 生产 D1 导出 + 恢复说明 -> ../backups/herb-export-site-backup-<时间戳>.zip
+python scripts/backup.py
+```
+
+- 备份脚本只打包 `git ls-files` 列出的**已跟踪文件**（自动排除 `node_modules/`、`.wrangler/`、垃圾文件），加上 `output/d1-remote-export.sql`（若存在）。
+- 因此**备份前先 `wrangler d1 export herb_export_site --remote --output ../output/d1-remote-export.sql`**，否则包内没有生产数据。
+- 备份包结构：`source/`（源码）、`database/d1-remote-YYYYMMDD.sql`、`database/init.sql`、`BACKUP_INFO.md`。
+- ⚠️ 生产 secret（`ADMIN_SECRET`）存在 Cloudflare，**无法导出**，恢复后需重新 `wrangler secret put`。
