@@ -1,0 +1,18 @@
+<a class="pcard" href="/<%= lang %>/product/<%= p.slug %>">
+  <div class="pcard-media" data-cat="<%= p.cat_slug || '' %>">
+    <%- thumb(p, lang) %>
+  </div>
+  <div class="pcard-body">
+    <% if (p.latin_name) { %><span class="pcard-latin"><%= p.latin_name %></span><% } %>
+    <h3 class="pcard-name"><%= lang === 'zh' ? p.name_zh : p.name_en %></h3>
+    <p class="pcard-sub"><%= lang === 'zh' ? p.name_en : p.name_zh %></p>
+    <dl class="pcard-meta">
+      <div><dt><%= t('prod.origin') %></dt><dd><%= lang === 'zh' ? p.origin_zh : p.origin_en %></dd></div>
+      <div><dt><%= t('prod.part') %></dt><dd><%= lang === 'zh' ? p.part_zh : p.part_en %></dd></div>
+    </dl>
+    <div class="pcard-foot">
+      <span class="pcard-price"><%= fmtPrice(p) %></span>
+      <span class="pcard-more"><%= t('prod.detail') %> →</span>
+    </div>
+  </div>
+</a>
