@@ -1,0 +1,9 @@
+<%- include('partials/head') %>
+<section class="section">
+  <div class="wrap empty">
+    <h1 class="serif">404</h1>
+    <p><%= lang === 'zh' ? '页面不存在或已被移除' : 'Page not found' %></p>
+    <a class="btn btn-gold" href="/<%= lang %>"><%= t('nav.home') %></a>
+  </div>
+</section>
+<%- include('partials/foot') %>
