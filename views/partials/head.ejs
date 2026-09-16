@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="<%= lang === 'zh' ? 'zh-CN' : 'en' %>">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title><%= typeof title !== 'undefined' && title ? title : (company.name_zh || '中药材出口') %></title>
+<meta name="description" content="<%= typeof description !== 'undefined' && description ? description : (lang === 'zh' ? company.intro_zh : company.intro_en || '').slice(0, 150) %>">
+<meta name="keywords" content="中药材出口, Chinese herbs, TCM herbs, herbal raw material, 中药饮片, decoction pieces, bulk herbs supplier">
+<link rel="alternate" hreflang="zh-CN" href="/zh">
+<link rel="alternate" hreflang="en" href="/en">
+<link rel="alternate" hreflang="x-default" href="/en">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F3D2E'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='%23E4C46B' font-family='serif'%3E%E8%8D%AF%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/css/site.css">
+</head>
+<body>
+<a class="skip" href="#main">跳到主要内容 / Skip to content</a>
+
+<div class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="topbar-left">
+      <% if (company.phone) { %><span>☎ <%= company.phone %></span><% } %>
+      <% if (company.email) { %><span>✉ <%= company.email %></span><% } %>
+      <% if (company.whatsapp) { %><span>✆ WhatsApp <%= company.whatsapp %></span><% } %>
+    </div>
+    <div class="topbar-right">
+      <div class="lang-switch">
+        <button class="lang-btn" type="button" id="langBtn" aria-haspopup="true" aria-expanded="false">
+          <span class="lang-ico"><%= lang === 'zh' ? '🇨🇳' : '🌐' %></span>
+          <span class="lang-label"><%= lang === 'zh' ? '简体中文' : 'English' %></span>
+          <span class="lang-caret">▾</span>
+        </button>
+        <ul class="lang-menu" id="langMenu" role="menu" aria-labelledby="langBtn">
+          <li role="menuitem">
+            <a href="<%= langUrl('zh') %>" data-setlang="zh" class="<%= lang === 'zh' ? 'cur' : '' %>">
+              <span class="lang-ico">🇨🇳</span>
+              <span class="lang-name">简体中文</span>
+              <span class="lang-region">中国大陆</span>
+            </a>
+          </li>
+          <li role="menuitem">
+            <a href="<%= langUrl('en') %>" data-setlang="en" class="<%= lang === 'en' ? 'cur' : '' %>">
+              <span class="lang-ico">🌐</span>
+              <span class="lang-name">English</span>
+              <span class="lang-region">International</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<header class="site-head">
+  <div class="wrap head-inner">
+    <a class="brand" href="/<%= lang %>">
+      <span class="seal">药</span>
+      <span class="brand-txt">
+        <strong><%= lang === 'zh' ? (company.name_zh || '华源堂中药材') : (company.name_en || 'Huayuan Tang Herbs') %></strong>
+        <em><%= lang === 'zh' ? '道地中药材 · 全球直供' : 'Authentic Chinese Herbs · Global Supply' %></em>
+      </span>
+    </a>
+    <button class="nav-toggle" aria-label="menu" onclick="document.querySelector('.main-nav').classList.toggle('open')">☰</button>
+    <nav class="main-nav">
+      <a class="<%= typeof active !== 'undefined' && active === 'home' ? 'on' : '' %>" href="/<%= lang %>"><%= t('nav.home') %></a>
+      <a class="<%= typeof active !== 'undefined' && active === 'products' ? 'on' : '' %>" href="/<%= lang %>/products"><%= t('nav.products') %></a>
+      <a class="<%= typeof active !== 'undefined' && active === 'about' ? 'on' : '' %>" href="/<%= lang %>/about"><%= t('nav.about') %></a>
+      <a class="<%= typeof active !== 'undefined' && active === 'certificate' ? 'on' : '' %>" href="/<%= lang %>/certificates"><%= t('nav.certificate') %></a>
+      <a class="<%= typeof active !== 'undefined' && active === 'contact' ? 'on' : '' %>" href="/<%= lang %>/contact"><%= t('nav.contact') %></a>
+      <a class="btn-quote" href="/<%= lang %>/contact"><%= t('nav.inquiry') %></a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
