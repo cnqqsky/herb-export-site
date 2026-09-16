@@ -1,10 +1,12 @@
 name: Deploy to Cloudflare Workers
 
-# 触发条件：推送到 main 即自动部署；也可在 Actions 页面手动触发
+# 主部署链路已切到 Cloudflare Workers Builds（push 到 main 由 CF 自动构建部署），
+# 本 workflow 保留为「手动兜底」：只在 Actions 页面点 Run workflow 时执行。
+# 若想改回 Actions 自动部署，把下面 push 触发器的注释去掉，并配置 CLOUDFLARE_API_TOKEN。
 on:
-  push:
-    branches:
-      - main
+  # push:
+  #   branches:
+  #     - main
   workflow_dispatch:
 
 concurrency:
@@ -23,7 +25,7 @@ jobs:
       CF_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node
         uses: actions/setup-node@v4

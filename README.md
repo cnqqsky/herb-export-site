@@ -98,9 +98,9 @@ npm run dev          # = node build-templates.mjs && wrangler dev（端口 8791�
 
 > ⚠️ 控制台里的 Worker 名必须与 `wrangler.toml` 的 `name = "herb-export-site"` 一致，否则构建失败。
 
-### 方式 B：GitHub Actions（需一个 CF API Token）
+### 方式 B：GitHub Actions（手动兜底，需一个 CF API Token）
 
-仓库里已内置 `.github/workflows/deploy.yml`，推送到 `main` 即触发：
+仓库里已内置 `.github/workflows/deploy.yml`。主链路走方式 A，为避免重复部署，该 workflow **默认只在 Actions 页面手动 Run workflow 时执行**（如需 push 自动触发，去掉文件里 `push:` 触发器的注释）。
 
 ```bash
 gh secret set CLOUDFLARE_API_TOKEN -R cnqqsky/herb-export-site   # 粘贴 CF API Token
