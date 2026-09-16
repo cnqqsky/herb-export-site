@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>管理后台 · 中药材外贸站</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230F3D2E'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='%23E4C46B' font-family='serif'%3E%E8%8D%AF%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="/css/admin.css">
+</head>
+<body>
+
+<!-- 登录 -->
+<div id="loginView" class="login-wrap">
+  <form class="login-card" id="loginForm">
+    <div class="login-seal">药</div>
+    <h1>中药材外贸站 · 管理后台</h1>
+    <p class="login-sub">Herb Export Site Admin</p>
+    <label>管理员账号</label>
+    <input name="username" value="admin" autocomplete="username">
+    <label>密码</label>
+    <input name="password" type="password" value="admin123" autocomplete="current-password">
+    <button class="btn-gold" type="submit">登 录</button>
+    <p class="login-err" id="loginErr"></p>
+    <p class="login-tip">默认账号 admin / admin123，登录后可在「修改密码」中更改</p>
+  </form>
+</div>
+
+<!-- 主体 -->
+<div id="appView" class="app hidden">
+  <aside class="sidebar">
+    <div class="sb-brand"><span class="seal">药</span><b>华源堂 · 后台</b></div>
+    <nav class="sb-nav">
+      <a data-view="dashboard" class="on">仪表盘</a>
+      <a data-view="products">产品管理</a>
+      <a data-view="categories">分类管理</a>
+      <a data-view="inquiries">询盘管理 <i class="dot" id="unreadDot"></i></a>
+      <a data-view="company">公司信息</a>
+      <a data-view="certificates">资质证书</a>
+      <a data-view="banners">首页 Banner</a>
+      <a data-view="i18n">站点文案</a>
+      <a data-view="password">修改密码</a>
+    </nav>
+    <div class="sb-foot">
+      <a href="/zh" target="_blank">查看前台 ↗</a>
+      <a id="logoutBtn">退出登录</a>
+    </div>
+  </aside>
+
+  <main class="content">
+    <header class="top-bar">
+      <h2 id="viewTitle">仪表盘</h2>
+      <div class="top-right">
+        <span id="adminName"></span>
+        <a href="/zh" target="_blank" class="btn-line-sm">查看前台 ↗</a>
+      </div>
+    </header>
+    <div class="content-body" id="contentBody"></div>
+  </main>
+</div>
+
+<!-- 弹窗 -->
+<div class="modal-mask hidden" id="modalMask">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="modalTitle">编辑</h3>
+      <button id="modalClose" class="modal-x">×</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot">
+      <button class="btn-ghost" id="modalCancel">取消</button>
+      <button class="btn-gold" id="modalSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast hidden" id="toast"></div>
+
+<script src="/js/admin.js"></script>
+</body>
+</html>
