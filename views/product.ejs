@@ -1,0 +1,76 @@
+<%- include('partials/head') %>
+
+<div class="wrap crumb-wrap">
+  <nav class="crumb">
+    <a href="/<%= lang %>"><%= t('breadcrumb.home') %></a> /
+    <a href="/<%= lang %>/products"><%= t('nav.products') %></a> /
+    <% if (p.cat_slug) { %><a href="/<%= lang %>/products?cat=<%= p.cat_slug %>"><%= lang === 'zh' ? p.cat_zh : p.cat_en %></a> /<% } %>
+    <span><%= lang === 'zh' ? p.name_zh : p.name_en %></span>
+  </nav>
+</div>
+
+<section class="section detail-top">
+  <div class="wrap detail-grid">
+    <div class="detail-media" data-cat="<%= p.cat_slug || '' %>">
+      <%- thumb(p, lang) %>
+      <% if (p.featured) { %><span class="badge-featured"><%= lang === 'zh' ? '主推' : 'Featured' %></span><% } %>
+    </div>
+
+    <div class="detail-info">
+      <% if (p.latin_name) { %><span class="d-latin"><%= p.latin_name %></span><% } %>
+      <h1 class="serif"><%= lang === 'zh' ? p.name_zh : p.name_en %></h1>
+      <p class="d-alt"><%= lang === 'zh' ? p.name_en : p.name_zh %><% if (p.pinyin) { %> · <%= p.pinyin %><% } %></p>
+
+      <div class="d-price"><%= fmtPrice(p) %><em><%= lang === 'zh' ? 'FOB 参考价，以实际询价为准' : 'FOB reference, final price on inquiry' %></em></div>
+
+      <table class="d-spec">
+        <tbody>
+          <tr><th><%= t('prod.origin') %></th><td><%= lang === 'zh' ? p.origin_zh : p.origin_en %></td></tr>
+          <tr><th><%= t('prod.part') %></th><td><%= lang === 'zh' ? p.part_zh : p.part_en %></td></tr>
+          <tr><th><%= t('prod.grade') %></th><td><%= lang === 'zh' ? p.grade_zh : p.grade_en %></td></tr>
+          <tr><th><%= t('prod.spec') %></th><td><%= lang === 'zh' ? p.spec_zh : p.spec_en %></td></tr>
+          <tr><th><%= t('prod.moisture') %></th><td><%= p.moisture %></td></tr>
+          <tr><th><%= t('prod.ash') %></th><td><%= p.ash %></td></tr>
+          <tr><th><%= t('prod.moq') %></th><td><%= p.moq %></td></tr>
+          <tr><th><%= t('prod.package') %></th><td><%= lang === 'zh' ? p.package_zh : p.package_en %></td></tr>
+          <tr><th><%= t('prod.shelf') %></th><td><%= p.shelf_life %></td></tr>
+        </tbody>
+      </table>
+
+      <div class="d-actions">
+        <a class="btn btn-gold" href="/<%= lang %>/contact?product=<%= p.id %>"><%= t('prod.inquire') %></a>
+        <% if (p.certs) { %><span class="d-certs"><%= t('prod.certs') %>：<%= p.certs %></span><% } %>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-tint">
+  <div class="wrap detail-body">
+    <article class="d-block">
+      <h2 class="serif"><%= t('prod.desc') %></h2>
+      <p><%= lang === 'zh' ? (p.desc_zh || p.desc_en) : (p.desc_en || p.desc_zh) %></p>
+    </article>
+    <article class="d-block">
+      <h2 class="serif"><%= t('prod.usage') %></h2>
+      <p><%= lang === 'zh' ? (p.usage_zh || p.usage_en) : (p.usage_en || p.usage_zh) %></p>
+    </article>
+    <article class="d-block">
+      <h2 class="serif"><%= t('prod.storage') %></h2>
+      <p><%= lang === 'zh' ? (p.storage_zh || p.storage_en) : (p.storage_en || p.storage_zh) %></p>
+    </article>
+  </div>
+</section>
+
+<% if (related && related.length) { %>
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head"><h2><%= t('prod.related') %></h2></div>
+    <div class="prod-grid">
+      <% related.forEach(function (r) { %><%- include('partials/product-card', { p: r }) %><% }); %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<%- include('partials/foot') %>
