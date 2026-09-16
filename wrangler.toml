@@ -1,11 +1,20 @@
 name = "herb-export-site"
+main = "worker.js"
 compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
-# Cloudflare Pages + D1 绑定
-# 部署前请先创建 D1 数据库：wrangler d1 create herb_export_site
-# 然后把下方 database_id 替换为创建后返回的 id（也可在 CF 控制台 Pages 设置里绑定，名称填 DB）
+# 数据库绑定：D1（边缘 SQLite）
 [[d1_databases]]
 binding = "DB"
 database_name = "herb_export_site"
-database_id = "REPLACE_WITH_YOUR_D1_DATABASE_ID"
+database_id = "8e1efab3-9da9-492c-902e-a6cf7db0074a"
+
+# 静态资源目录（admin.html / css / js / 图片）。
+# run_worker_first = true：Worker 先接管请求，再按需用 env.ASSETS 回源静态文件，
+# 这样 SSR 路由（/zh/*、/en/*）与静态资源可共存，互不冲突。
+[assets]
+directory = "public"
+binding = "ASSETS"
+run_worker_first = true
+html_handling = "none"
+not_found_handling = "none"
