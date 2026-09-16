@@ -1,0 +1,128 @@
+<%- include('partials/head') %>
+
+<section class="hero">
+  <div class="hero-grid" aria-hidden="true"></div>
+  <div class="wrap hero-inner">
+    <div class="hero-copy">
+      <span class="eyebrow"><%= lang === 'zh' ? '中国 · 亳州药材集散中心' : 'Bozhou, China — Herbal Trade Hub' %></span>
+      <h1><%= t('hero.title') %></h1>
+      <p><%= t('hero.subtitle') %></p>
+      <div class="hero-btns">
+        <a class="btn btn-gold" href="/<%= lang %>/products"><%= t('hero.cta1') %></a>
+        <a class="btn btn-line" href="/<%= lang %>/contact"><%= t('hero.cta2') %></a>
+      </div>
+      <ul class="hero-stats">
+        <li><b><%= company.year_founded || '1993' %></b><span><%= lang === 'zh' ? '创立年份' : 'Founded' %></span></li>
+        <li><b><%= (company.annual_output || '8000 t').replace(/[^\d]/g, '') || '8000' %></b><span><%= lang === 'zh' ? '吨年产能' : 'Tons / Year' %></span></li>
+        <li><b>40+</b><span><%= lang === 'zh' ? '出口国家' : 'Export Countries' %></span></li>
+        <li><b>12</b><span><%= lang === 'zh' ? '产地基地' : 'Origin Bases' %></span></li>
+      </ul>
+    </div>
+    <div class="hero-cards">
+      <% featured.slice(0, 3).forEach(function (p, i) { %>
+        <a class="specimen" href="/<%= lang %>/product/<%= p.slug %>" style="--i:<%= i %>">
+          <span class="sp-latin"><%= p.latin_name %></span>
+          <span class="sp-name"><%= lang === 'zh' ? p.name_zh : p.name_en %></span>
+          <span class="sp-origin"><%= lang === 'zh' ? p.origin_zh : p.origin_en %></span>
+        </a>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<% if (banners && banners.length) { %>
+<section class="banner-strip">
+  <div class="wrap">
+    <div class="banner-rotator" id="rotator">
+      <% banners.forEach(function (b, i) { %>
+        <div class="banner-slide <%= i === 0 ? 'on' : '' %>">
+          <strong><%= lang === 'zh' ? b.title_zh : b.title_en %></strong>
+          <span><%= lang === 'zh' ? b.subtitle_zh : b.subtitle_en %></span>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2><%= t('home.categories') %></h2>
+      <a class="sec-more" href="/<%= lang %>/products"><%= t('home.viewall') %> →</a>
+    </div>
+    <div class="cat-grid">
+      <% categories.forEach(function (c) { %>
+        <a class="cat-card" href="/<%= lang %>/products?cat=<%= c.slug %>">
+          <span class="cat-icon" data-cat="<%= c.icon %>"><%= (c.icon || 'leaf').charAt(0).toUpperCase() %></span>
+          <strong><%= lang === 'zh' ? c.name_zh : c.name_en %></strong>
+          <em><%= lang === 'zh' ? c.name_en : c.name_zh %></em>
+          <p><%= (lang === 'zh' ? c.desc_zh : c.desc_en || '').slice(0, 60) %>…</p>
+        </a>
+      <% }); %>
+    </div>
+  </div>
+</section>
+
+<section class="section section-tint">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2><%= t('home.featured') %></h2>
+      <a class="sec-more" href="/<%= lang %>/products"><%= t('home.viewall') %> →</a>
+    </div>
+    <div class="prod-grid">
+      <% featured.forEach(function (p) { %><%- include('partials/product-card', { p: p }) %><% }); %>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head"><h2><%= t('home.why') %></h2></div>
+    <div class="why-grid">
+      <div class="why"><span class="why-n">01</span><h3><%= t('why.t1') %></h3><p><%= t('why.d1') %></p></div>
+      <div class="why"><span class="why-n">02</span><h3><%= t('why.t2') %></h3><p><%= t('why.d2') %></p></div>
+      <div class="why"><span class="why-n">03</span><h3><%= t('why.t3') %></h3><p><%= t('why.d3') %></p></div>
+      <div class="why"><span class="why-n">04</span><h3><%= t('why.t4') %></h3><p><%= t('why.d4') %></p></div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-tint">
+  <div class="wrap about-preview">
+    <div>
+      <span class="eyebrow eyebrow-dark"><%= t('home.about') %></span>
+      <h2 class="serif"><%= lang === 'zh' ? company.name_zh : company.name_en %></h2>
+      <p class="lead"><%= (lang === 'zh' ? company.intro_zh : company.intro_en || '').slice(0, 420) %>…</p>
+      <a class="btn btn-dark" href="/<%= lang %>/about"><%= t('nav.about') %> →</a>
+    </div>
+    <div class="facts">
+      <div><b><%= company.year_founded %></b><span><%= t('about.founded') %></span></div>
+      <div><b><%= company.employees %></b><span><%= t('about.employees') %></span></div>
+      <div><b><%= company.factory_area %></b><span><%= t('about.area') %></span></div>
+      <div><b><%= company.annual_output %></b><span><%= t('about.output') %></span></div>
+    </div>
+  </div>
+</section>
+
+<% if (certs && certs.length) { %>
+<section class="section">
+  <div class="wrap">
+    <div class="sec-head">
+      <h2><%= t('cert.title') %></h2>
+      <a class="sec-more" href="/<%= lang %>/certificates"><%= t('home.viewall') %> →</a>
+    </div>
+    <div class="cert-row">
+      <% certs.slice(0, 6).forEach(function (c) { %>
+        <div class="cert-chip">
+          <span class="cert-seal">✓</span>
+          <strong><%= lang === 'zh' ? c.name_zh : c.name_en %></strong>
+          <em><%= lang === 'zh' ? c.issuer_zh : c.issuer_en %></em>
+        </div>
+      <% }); %>
+    </div>
+  </div>
+</section>
+<% } %>
+
+<%- include('partials/foot') %>
