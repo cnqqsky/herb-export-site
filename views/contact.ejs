@@ -1,0 +1,70 @@
+<%- include('partials/head') %>
+
+<div class="page-head">
+  <div class="wrap">
+    <nav class="crumb"><a href="/<%= lang %>"><%= t('breadcrumb.home') %></a> / <span><%= t('nav.contact') %></span></nav>
+    <h1 class="serif"><%= t('contact.title') %></h1>
+    <p class="page-sub"><%= t('contact.subtitle') %></p>
+  </div>
+</div>
+
+<section class="section">
+  <div class="wrap contact-grid">
+    <div class="contact-info">
+      <h2 class="serif"><%= lang === 'zh' ? company.name_zh : company.name_en %></h2>
+      <div class="contact-list">
+        <p><b><%= t('contact.address') %></b><br><%= lang === 'zh' ? company.address_zh : company.address_en %></p>
+        <p><b><%= t('contact.phone') %></b><br><%= company.phone %></p>
+        <p><b>WhatsApp</b><br><%= company.whatsapp %></p>
+        <p><b><%= t('contact.email') %></b><br><%= company.email %></p>
+        <p><b><%= t('contact.hours') %></b><br><%= lang === 'zh' ? company.worktime_zh : company.worktime_en %></p>
+      </div>
+    </div>
+
+    <form class="inquiry-form" id="inquiryForm">
+      <% if (product) { %>
+        <input type="hidden" name="product_id" value="<%= product.id %>">
+        <div class="form-chip">
+          <%= lang === 'zh' ? '询盘产品：' : 'Product: ' %>
+          <strong><%= lang === 'zh' ? product.name_zh : product.name_en %></strong>
+        </div>
+      <% } %>
+      <div class="field">
+        <label><%= t('form.name') %> *</label>
+        <input name="name" required>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label><%= t('form.email') %> *</label>
+          <input name="email" type="email" required>
+        </div>
+        <div class="field">
+          <label><%= t('form.phone') %></label>
+          <input name="phone">
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label><%= t('form.company') %></label>
+          <input name="company">
+        </div>
+        <div class="field">
+          <label><%= t('form.country') %></label>
+          <input name="country">
+        </div>
+      </div>
+      <div class="field">
+        <label><%= t('form.quantity') %></label>
+        <input name="quantity" placeholder="e.g. 500 kg / 1x20'FCL">
+      </div>
+      <div class="field">
+        <label><%= t('form.message') %></label>
+        <textarea name="message" rows="5" placeholder="<%= lang === 'zh' ? '请说明规格、等级、包装、目标港口等要求…' : 'Please specify grade, packing, destination port…' %>"></textarea>
+      </div>
+      <button class="btn btn-gold" type="submit"><%= t('form.submit') %></button>
+      <p class="form-msg" id="formMsg"></p>
+    </form>
+  </div>
+</section>
+
+<%- include('partials/foot') %>
