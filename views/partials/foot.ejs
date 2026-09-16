@@ -1,0 +1,56 @@
+</main>
+
+<section class="cta-band">
+  <div class="wrap cta-inner">
+    <div>
+      <h3><%= lang === 'zh' ? '需要报价或样品？' : 'Need a quote or samples?' %></h3>
+      <p><%= lang === 'zh' ? '告诉我们您的需求，24 小时内提供详细报价单与 COA 检测报告。' : 'Tell us your requirements — detailed quotation and COA within 24 hours.' %></p>
+    </div>
+    <a class="btn btn-gold" href="/<%= lang %>/contact"><%= t('nav.inquiry') %></a>
+  </div>
+</section>
+
+<footer class="site-foot">
+  <div class="wrap foot-grid">
+    <div class="foot-col">
+      <div class="brand foot-brand">
+        <span class="seal">药</span>
+        <span class="brand-txt">
+          <strong><%= lang === 'zh' ? (company.name_zh || '') : (company.name_en || '') %></strong>
+          <em><%= lang === 'zh' ? '道地中药材 · 全球直供' : 'Authentic Chinese Herbs' %></em>
+        </span>
+      </div>
+      <p class="foot-desc"><%= (lang === 'zh' ? company.intro_zh : company.intro_en || '').slice(0, 160) %>…</p>
+    </div>
+    <div class="foot-col">
+      <h4><%= t('footer.quick') %></h4>
+      <a href="/<%= lang %>"><%= t('nav.home') %></a>
+      <a href="/<%= lang %>/products"><%= t('nav.products') %></a>
+      <a href="/<%= lang %>/about"><%= t('nav.about') %></a>
+      <a href="/<%= lang %>/certificates"><%= t('nav.certificate') %></a>
+      <a href="/<%= lang %>/contact"><%= t('nav.contact') %></a>
+    </div>
+    <div class="foot-col">
+      <h4><%= lang === 'zh' ? '产品分类' : 'Categories' %></h4>
+      <% categories.slice(0, 6).forEach(function (c) { %>
+        <a href="/<%= lang %>/products?cat=<%= c.slug %>"><%= lang === 'zh' ? c.name_zh : c.name_en %></a>
+      <% }); %>
+    </div>
+    <div class="foot-col">
+      <h4><%= t('footer.contact') %></h4>
+      <% if (company.address_zh) { %><p><%= lang === 'zh' ? company.address_zh : company.address_en %></p><% } %>
+      <% if (company.phone) { %><p>☎ <%= company.phone %></p><% } %>
+      <% if (company.whatsapp) { %><p>✆ <%= company.whatsapp %></p><% } %>
+      <% if (company.email) { %><p>✉ <%= company.email %></p><% } %>
+      <% if (company.worktime_zh) { %><p><%= lang === 'zh' ? company.worktime_zh : company.worktime_en %></p><% } %>
+    </div>
+  </div>
+  <div class="foot-bottom wrap">
+    <span>© <%= new Date().getFullYear() %> <%= lang === 'zh' ? (company.name_zh || '') : (company.name_en || '') %>. <%= t('footer.rights') %>.</span>
+    <a href="/admin" class="foot-admin"><%= t('footer.admin') %></a>
+  </div>
+</footer>
+
+<script src="/js/site.js"></script>
+</body>
+</html>
