@@ -243,9 +243,10 @@ function hashPassword(pw, salt) {
 async function doSeed(env) {
   const catId = {};
   const insCat = 'INSERT INTO categories (slug,name_zh,name_en,desc_zh,desc_en,icon,sort_order) VALUES (?,?,?,?,?,?,?)';
-  CATEGORIES.forEach((c, i) => {
-    catId[c[0]] = db.run(env, insCat, [...c, i + 1]).lastInsertRowid;
-  });
+  for (let i = 0; i < CATEGORIES.length; i++) {
+    const r = await db.run(env, insCat, [...CATEGORIES[i], i + 1]);
+    catId[CATEGORIES[i][0]] = r.lastInsertRowid;
+  }
 
   const insProd = `INSERT INTO products (slug,category_id,name_zh,name_en,pinyin,latin_name,origin_zh,origin_en,part_zh,part_en,
     grade_zh,grade_en,spec_zh,spec_en,moisture,ash,package_zh,package_en,moq,price_min,price_max,unit,
@@ -253,7 +254,7 @@ async function doSeed(env) {
     VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`;
   for (const p of PRODUCTS) {
     const { cat, ...r } = p;
-    db.run(env, insProd, [
+    await db.run(env, insProd, [
       r.slug, catId[cat] || null, r.name_zh, r.name_en, r.pinyin, r.latin_name,
       r.origin_zh, r.origin_en, r.part_zh, r.part_en,
       r.grade_zh, r.grade_en, r.spec_zh, r.spec_en, r.moisture, r.ash,
@@ -263,7 +264,7 @@ async function doSeed(env) {
     ]);
   }
 
-  db.run(env, `INSERT INTO company (id,name_zh,name_en,intro_zh,intro_en,address_zh,address_en,phone,whatsapp,
+  await db.run(env, `INSERT INTO company (id,name_zh,name_en,intro_zh,intro_en,address_zh,address_en,phone,whatsapp,
     email,website,worktime_zh,worktime_en,year_founded,employees,factory_area,main_market,annual_output)
     VALUES (1,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [
     COMPANY.name_zh, COMPANY.name_en, COMPANY.intro_zh, COMPANY.intro_en,
@@ -274,13 +275,13 @@ async function doSeed(env) {
   ]);
 
   const insCert = 'INSERT INTO certificates (name_zh,name_en,issuer_zh,issuer_en,sort_order) VALUES (?,?,?,?,?)';
-  CERTIFICATES.forEach((c, i) => db.run(env, insCert, [...c, i + 1]));
+  for (let i = 0; i < CERTIFICATES.length; i++) await db.run(env, insCert, [...CERTIFICATES[i], i + 1]);
 
   const insBan = 'INSERT INTO banners (title_zh,title_en,subtitle_zh,subtitle_en,sort_order) VALUES (?,?,?,?,?)';
-  BANNERS.forEach((b, i) => db.run(env, insBan, [...b, i + 1]));
+  for (let i = 0; i < BANNERS.length; i++) await db.run(env, insBan, [...BANNERS[i], i + 1]);
 
   const salt = crypto.randomBytes(16).toString('hex');
-  db.run('INSERT INTO admins (username,password_hash,salt) VALUES (?,?,?)', ['admin', hashPassword('admin123', salt), salt]);
+  await db.run(env, 'INSERT INTO admins (username,password_hash,salt) VALUES (?,?,?)', ['admin', hashPassword('admin123', salt), salt]);
 }
 
 let seedPromise = null;
