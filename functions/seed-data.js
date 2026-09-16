@@ -119,14 +119,16 @@ CREATE INDEX IF NOT EXISTS idx_products_cat ON products(category_id);
 CREATE INDEX IF NOT EXISTS idx_products_status ON products(status);
 `;
 
+export const SCHEMA_SRC = SCHEMA;
 let schemaPromise = null;
+// (re-affirm) exports below
 export function ensureSchema(env) {
   if (!schemaPromise) schemaPromise = db.exec(env, SCHEMA);
   return schemaPromise;
 }
 
 /* ---------------- 演示数据 ---------------- */
-const CATEGORIES = [
+export const CATEGORIES = [
   ['roots-rhizomes', '根及根茎类', 'Roots & Rhizomes', '以根或根茎入药，是中药材出口量最大的品类，多用于滋补、活血、清热。', 'Roots and rhizomes are the largest exported TCM category, widely used for tonifying, blood activation and heat clearing.', 'root'],
   ['flowers', '花类', 'Flowers', '以花蕾或花序入药，多含挥发油与黄酮，用于清热解表、疏肝理气。', 'Flower buds and inflorescences rich in volatile oils & flavonoids, used to release exterior and regulate qi.', 'flower'],
   ['fruits-seeds', '果实种子类', 'Fruits & Seeds', '以成熟果实或种子入药，常用于消食、润肠、安神。', 'Mature fruits and seeds used for digestion, moistening intestines and calming the mind.', 'fruit'],
@@ -136,7 +138,7 @@ const CATEGORIES = [
   ['fungi-others', '菌类及其他', 'Fungi & Others', '真菌类及其他特殊来源药材，多用于扶正固本、利水渗湿。', 'Fungal and other special-source materials for strengthening resistance and draining dampness.', 'fungi'],
 ];
 
-const DEF = {
+export const DEF = {
   grade_zh: '一级 / 选货', grade_en: 'Grade A / Selected',
   spec_zh: '整枝 / 切片 / 粉末', spec_en: 'Whole / Sliced / Powder',
   moisture: '≤ 13%', ash: '≤ 7%',
@@ -151,7 +153,7 @@ const P = (o) => Object.assign({}, DEF, o, {
   slug: o.slug || o.name_en.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
 });
 
-const PRODUCTS = [
+export const PRODUCTS = [
   P({ cat: 'roots-rhizomes', name_zh: '当归', name_en: 'Angelica Sinensis Root', pinyin: 'Dang Gui', latin: 'Radix Angelicae Sinensis', origin_zh: '甘肃岷县', origin_en: 'Minxian, Gansu', part_zh: '根', part_en: 'Root', price_min: 9.8, price_max: 16.5, featured: 1, sort_order: 1, desc_zh: '伞形科当归的干燥根，主根粗长、支根少，断面黄白色，油润，香气浓郁。岷县当归挥发油与阿魏酸含量高，为公认道地产区。', desc_en: 'Dried root of Angelica sinensis (Oliv.) Diels. Thick taproot with few branches, yellowish-white oily fracture and strong aroma. Minxian origin guarantees high volatile oil and ferulic acid content.', usage_zh: '补血活血、调经止痛、润肠通便。用于血虚萎黄、月经不调、虚寒腹痛、肠燥便秘。', usage_en: 'Tonifies blood, activates circulation, regulates menstruation and relieves pain. Used for blood deficiency, irregular menstruation, abdominal pain and constipation.' }),
   P({ cat: 'roots-rhizomes', name_zh: '黄芪', name_en: 'Astragalus Root', pinyin: 'Huang Qi', latin: 'Radix Astragali', origin_zh: '甘肃陇西 / 山西浑源', origin_en: 'Longxi Gansu / Hunyuan Shanxi', part_zh: '根', part_en: 'Root', price_min: 6.2, price_max: 11.8, featured: 1, sort_order: 2, desc_zh: '豆科蒙古黄芪或膜荚黄芪的干燥根。条粗直、质硬而韧、断面纤维性强且显粉性，味微甜，嚼之有豆腥味。', desc_en: 'Dried root of Astragalus membranaceus (Fisch.) Bge. or A. membranaceus var. mongholicus. Straight thick root, tough texture, fibrous powdery fracture, mildly sweet with beany note.', usage_zh: '补气升阳、固表止汗、利水消肿、生津养血。用于气虚乏力、食少便溏、表虚自汗。', usage_en: 'Tonifies qi and raises yang, consolidates the exterior, promotes diuresis. Used for qi deficiency fatigue, poor appetite and spontaneous sweating.' }),
   P({ cat: 'roots-rhizomes', name_zh: '人参（生晒参）', name_en: 'Ginseng Root (White Ginseng)', pinyin: 'Ren Shen', latin: 'Radix et Rhizoma Ginseng', origin_zh: '吉林抚松', origin_en: 'Fusong, Jilin', part_zh: '根及根茎', part_en: 'Root & Rhizome', price_min: 42, price_max: 95, grade_zh: '4~6 年生 / 特等', grade_en: '4–6 Years / Premium', featured: 1, sort_order: 3, desc_zh: '五加科人参的干燥根及根茎，主根呈纺锤形，表面黄白色，具疏浅断续的粗横纹及明显的纵皱，质较硬，断面粉性。', desc_en: 'Dried root and rhizome of Panax ginseng C.A.Mey. Spindle-shaped main root, yellowish-white surface with transverse wrinkles, hard texture and farinaceous fracture.', usage_zh: '大补元气、复脉固脱、补脾益肺、生津安神。用于体虚欲脱、脾虚食少、肺虚喘咳、津伤口渴。', usage_en: 'Powerfully tonifies primordial qi, benefits spleen and lung, generates fluid and calms the mind. For collapse from severe deficiency, fatigue and dyspnea.' }),
@@ -201,7 +203,7 @@ const PRODUCTS = [
   P({ cat: 'fungi-others', name_zh: '冬虫夏草', name_en: 'Cordyceps Sinensis', pinyin: 'Dong Chong Xia Cao', latin: 'Cordyceps sinensis', origin_zh: '青海玉树 / 西藏那曲', origin_en: 'Yushu Qinghai / Nagqu Tibet', part_zh: '复合体', part_en: 'Complex (fungus + larva)', price_min: 18000, price_max: 32000, grade_zh: '2000/3000/4000 条/kg', grade_en: '2000/3000/4000 pcs per kg', moq: '100 g', unit: 'kg', sort_order: 3, desc_zh: '麦角菌科真菌冬虫夏草菌寄生在蝙蝠蛾科昆虫幼虫上的子座和幼虫尸体的干燥复合体。虫体似蚕，表面深黄色至黄棕色，有环纹 20~30 个，足 8 对；子座细长圆柱形，表面深棕色至棕褐色，气微腥，味微苦。需提供濒危物种进出口许可文件。', desc_en: 'Dried complex of the fungus Cordyceps sinensis and its host larva. Caterpillar-shaped body with a slender stem-like stroma. CITES documentation required for export.', usage_zh: '补肾益肺、止血化痰。用于肾虚精亏、阳痿遗精、腰膝酸痛、久咳虚喘、劳嗽痰血。', usage_en: 'Tonifies kidney and lung, stops bleeding and resolves phlegm. For impotence, chronic cough and lower back pain.' }),
 ];
 
-const COMPANY = {
+export const COMPANY = {
   name_zh: '华源堂中药材进出口有限公司',
   name_en: 'Huayuan Tang Chinese Herbs Import & Export Co., Ltd.',
   intro_zh: '公司始创于 1993 年，总部位于中国药都安徽亳州，是集种植基地、饮片加工、质量检测与国际贸易于一体的中药材专业供应商。我们在甘肃、云南、宁夏、四川、广西等道地产区建有 12 个合作种植基地与 3 个现代化加工车间，年加工能力逾 8,000 吨。产品远销欧盟、美国、日本、韩国、东南亚及中东等 40 多个国家和地区，长期为保健品、功能食品、草本茶、化妆品及制药企业提供稳定的原料供应与 OEM/ODM 服务。',
@@ -221,7 +223,7 @@ const COMPANY = {
   annual_output: '8,000 吨 / 年',
 };
 
-const CERTIFICATES = [
+export const CERTIFICATES = [
   ['GMP 药品生产质量管理规范', 'GMP (Good Manufacturing Practice)', '国家药品监督管理局', 'NMPA'],
   ['ISO 9001 质量管理体系', 'ISO 9001 Quality Management System', 'SGS 通标标准技术服务', 'SGS'],
   ['HACCP 食品安全管理体系', 'HACCP Food Safety System', 'SGS 通标标准技术服务', 'SGS'],
@@ -230,7 +232,7 @@ const CERTIFICATES = [
   ['原产地证明 / 植检证书', 'Certificate of Origin / Phytosanitary Certificate', '中国国际贸易促进委员会', 'CCPIT'],
 ];
 
-const BANNERS = [
+export const BANNERS = [
   ['道地药材 · 全球直供', 'Authentic Herbs · Global Supply', '12 个道地产区基地 · 8,000 吨年产能 · 40+ 国家长期供货', '12 origin bases · 8,000 t annual capacity · Exporting to 40+ countries'],
   ['每批次 COA 检测报告', 'COA for Every Batch', '水分 · 灰分 · 农残 · 重金属 · 黄曲霉毒素 全项检测', 'Moisture · Ash · Pesticide · Heavy metals · Aflatoxin — fully tested'],
   ['免费样品 · 7 天寄达', 'Free Samples · Shipped in 7 Days', '支持小批量试单，整柜拼柜均可，FOB / CIF / EXW 灵活条款', 'Small trial orders welcome, FCL & LCL, FOB / CIF / EXW terms'],
