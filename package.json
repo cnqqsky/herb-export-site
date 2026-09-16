@@ -1,0 +1,15 @@
+{
+  "name": "herb-export-site",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "中药材外贸中英双语官网 + 后台（Cloudflare Pages 原生：D1 + Pages Functions + EJS SSR）",
+  "scripts": {
+    "build": "node build-templates.mjs",
+    "dev": "node build-templates.mjs && wrangler pages dev .",
+    "deploy": "node build-templates.mjs && wrangler pages deploy"
+  },
+  "dependencies": {
+    "ejs": "^3.1.10"
+  }
+}
