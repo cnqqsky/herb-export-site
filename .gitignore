@@ -13,6 +13,14 @@ server/
 .env
 .env.*
 
+# npm 源配置：本地用国内镜像加速，但**不能入库**
+# —— Cloudflare 构建机在海外，走 npmmirror 会显著变慢甚至超时；
+#    仓库内保持官方源（package-lock.json 的 resolved 亦为 registry.npmjs.org）。
+.npmrc
+
+# 临时调试产物（Cloudflare API 探测等）
+.cf*.json
+
 # 本地遗留垃圾文件（旧 Express 版产物，可自行删除）
 cleanup_done.txt
 kill.txt

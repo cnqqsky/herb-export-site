@@ -88,7 +88,7 @@ npm run dev          # = node build-templates.mjs && wrangler dev（端口 8791�
 ### 方式 A：Workers Builds 连 Git（推荐，零密钥）
 
 1. Cloudflare 控制台 → **Workers & Pages** → 选中 `herb-export-site`
-2. **Settings → Builds → Connect** → 授权 GitHub → 选 `cnqqsky/herb-export-site`
+2. **Settings → Build** → **Connect** → 授权 GitHub → 选 `cnqqsky/herb-export-site`
 3. 构建设置：
    - Git branch：`main`
    - Build command：`npm install && npm run build`
@@ -97,6 +97,15 @@ npm run dev          # = node build-templates.mjs && wrangler dev（端口 8791�
 4. 保存后 push 一次即触发构建部署（Cloudflare 会自动生成并托管所需的 API token，无需手动配置）
 
 > ⚠️ 控制台里的 Worker 名必须与 `wrangler.toml` 的 `name = "herb-export-site"` 一致，否则构建失败。
+
+> ⚠️ **npm 源约束**：构建机在海外，仓库内必须保持官方源。
+> `.npmrc` 已被移出版本控制（`.gitignore` 忽略，本地保留国内镜像用于加速），
+> `package-lock.json` 里 99 个依赖的 `resolved` 全部指向 `registry.npmjs.org`。
+> **不要把 `.npmrc` 提交回仓库**，也不要用国内镜像重新生成 lock 后直接提交，
+> 否则构建会去拉 `registry.npmmirror.com`，显著变慢甚至超时。
+> 若确需用镜像重建 lock，提交前执行：
+> `sed -i 's|registry\.npmmirror\.com|registry.npmjs.org|g' package-lock.json`
+> （两个源的 tarball 二进制完全一致，已实测同一 sha512，改域名不影响 integrity 校验）。
 
 ### 方式 B：GitHub Actions（手动兜底，需一个 CF API Token）
 
