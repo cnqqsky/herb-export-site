@@ -168,6 +168,20 @@ herb-export-site/
    2026-09-17 事故：`products.ejs` 用了 `new URLSearchParams()` 但未登记 → 线上 `/zh/products` 500
    （`TypeError: URLSearchParams is not a constructor`）。已把 URL/URLSearchParams/crypto/Intl/blob 等一并列白名单。
    → **新增模板若要用别的全局（如 `Intl.NumberFormat`），先往 `GLOBALS` 里加，再 `npm run build`。**
+8. **仓库内必须保持 npm 官方源**（2026-09-17 修复）。
+   - `.npmrc` 已移出版本控制（`.gitignore` 忽略，本地保留 `registry.npmmirror.com` 仅供本机加速）；
+     `package-lock.json` 里 99 个依赖的 `resolved` 全部指向 `registry.npmjs.org`。
+   - 原因：**Cloudflare 构建机在海外**，从 `registry.npmmirror.com` 拉包会显著变慢甚至超时；
+     且海外构建环境对本项目依赖的 postinstall（esbuild/workerd 的 `node install.js`）访问国内镜像更不可靠。
+   - **不要把 `.npmrc` 提交回仓库**，也不要用国内镜像重新生成 lock 后直接提交。
+     若本地图快用了镜像重建，提交前跑：
+     `sed -i 's|registry\.npmmirror\.com|registry.npmjs.org|g' package-lock.json`
+     （两源 tarball 二进制完全一致，实测同一 sha512，改域名不影响 lock 的 integrity 校验）
+   - **lock 必须是完整锁文件**：曾用 `npm install --package-lock-only` 生成，导致 `ejs` 等条目缺
+     `resolved`/`integrity`，而 CF 构建跑 `npm ci` 会因锁文件不完整直接失败。
+     重建方式：`rm -rf node_modules package-lock.json && npm install`，然后校验
+     「缺 resolved 的条目数 == 0」。
+   - 本地已实测全链路通过：`npm ci` → `npm run build` → `wrangler deploy`。
 
 ### 🟡 环境约束（本机）
 
